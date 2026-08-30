@@ -4,119 +4,87 @@
 
 This is a **50-minute live system-design discussion**, not a coding exercise.
 
-- Use Excalidraw or another whiteboard to draw your design.
+- Use Excalidraw or another whiteboard to develop your design.
 - Working code is not expected.
-- The interviewer may clarify requirements or introduce new scenarios.
-- Build and explain the design interactively rather than working silently and
-  presenting only at the end.
-- Your final artifact should be one understandable architecture diagram with
-  enough annotations to support the discussion.
+- Explain important decisions as you make them; the interviewer may introduce a new scenario.
 
-## AI Use
+You may use any AI coding, research, or diagramming agent while sharing your
+screen. AI use is not judged negatively, but you must be able to explain,
+challenge, and modify every part of the resulting design. At the end, be ready
+to identify one AI suggestion you accepted and one you rejected or changed.
 
-You may use any AI coding, research, or diagramming agent. Keep your AI work
-visible while sharing your screen and briefly narrate how you are using it.
+## The Problem
 
-AI use is not judged negatively. However, you are responsible for the final
-design and must be able to explain, challenge, and modify every part of it
-without relying on the agent to answer for you. During the discussion, the
-interviewer may ask you to reason through a new scenario before consulting AI.
+Design an agent that is genuinely proactive: it identifies useful next moves the
+user did not explicitly request, can work between user turns, and closes
+unfinished loops. It must also know when to act independently and when to
+involve a human.
 
-At the end, be prepared to identify one AI suggestion you accepted and one you
-rejected or materially changed.
+Choose a concrete product surface. An inbox/calendar assistant is one option,
+but you may choose another surface if it makes the tradeoffs equally clear.
 
-## Problem
+The agent receives events from its environment and may propose no action, one
+action, or several actions. For each proposed action, it must choose:
 
-Design an agent that is genuinely proactive: it surfaces next moves the user did
-not request, works between user turns, and closes unfinished loops. At the same
-time, it must know when to stop and involve a human.
-
-Use an inbox/calendar assistant as the concrete surface. It may triage messages,
-draft or send replies, schedule meetings, detect unfinished threads, follow up,
-and react to a stream of inbox, calendar, timer, and user events.
-
-For every proposed action, the system must choose one of four outcomes:
-
-- **Proceed** — act silently.
-- **Proceed and notify** — act, then inform the user without blocking.
+- **Proceed** — act without interrupting the user.
+- **Proceed and notify** — act, then inform the user.
 - **Ask** — pause for a specific user decision.
-- **Escalate** — stop and route urgent or higher-authority attention.
+- **Escalate** — stop and seek urgent or higher-authority attention.
 
-The central problem is not proactivity or safety in isolation. It is the policy
-that decides, for each proposed action, which one should win. Over-asking is a
-failure mode, not a safe default.
+The central design problem is the policy that balances useful initiative with
+the consequences of acting incorrectly. Asking too often is also a failure.
 
-## Core Requirements
+## What Your Design Must Address
 
-### Proactivity and Event Loop
+### Proactive Behavior
 
-The agent must do more than respond to direct user messages. It should receive a
-stream of inbox, calendar, timer, or state-change events; identify useful next
-moves the user did not request; and continue tracking unfinished work across
-turns.
+Explain how the agent notices opportunities without a new user message, keeps
+track of unfinished work, and determines whether work has actually been
+completed. The triggering and persistence mechanisms are your choice.
 
-Your design should make clear how proactivity is triggered, how work and context
-persist across turns, and how the system knows whether an unfinished loop has
-actually been completed. You should choose the components and interfaces.
+### Sensitivity and Gating
 
-### Sensitivity Model
+For an action, **sensitivity** or **blast radius** means the potential consequence
+if that action is wrong. It is different from confidence that the action is
+correct.
 
-The sensitivity model answers: **If this proposed action is wrong, how large is
-the potential consequence?** We call that consequence its **blast radius**.
+For example, mistakenly archiving a restorable newsletter has a smaller blast
+radius than sending private employee data to an external recipient.
 
-Blast radius is not the model's confidence and is not the probability that harm
-will occur. It describes the size and reach of a possible mistake. For example:
-
-| Proposed action | Possible consequence if wrong | Example blast radius |
-|---|---|---|
-| Archive a restorable newsletter | Small and easy to undo | Low |
-| Move an internal team meeting | Affects several people but can be repaired | Medium |
-| Send private employee data externally | Serious privacy and organizational impact | High |
-
-Classify blast radius using features rather than only an action-type switch. At
-minimum, consider recipient, reversibility, money or commitment, and novelty.
-Your design should explain how these features combine and what the sensitivity
-model returns for the gate to consume.
-
-### Gating Policy
-
-The gating policy answers a different question: **Given the potential
-consequence and what we know about this situation, how much autonomy should the
-agent receive?**
-
-| Component | Main question | Example inputs | Output |
-|---|---|---|---|
-| Sensitivity model | How consequential would a mistake be? | Proposed action, recipients, reversibility, money, novelty | Sensitivity features and blast radius |
-| Gating policy | How much autonomy is appropriate now? | Sensitivity and relevant context | Proceed, Proceed and notify, Ask, or Escalate |
-
-Make the decision process understandable and testable. Explain why two actions
-with the same blast radius might reasonably receive different decisions.
+Design a way to assess sensitivity from the action and its context, then use it
+with other relevant information to choose one of the four outcomes above. Avoid
+treating every action of the same type as equally sensitive. Make the decision
+understandable and testable; the representation, formula, and policy structure
+are up to you.
 
 ### Learning from Corrections
 
-When the user says “you didn’t need to ask,” future policy should move toward
-appropriate autonomy. When the user says “you should have asked,” it should move
-toward appropriate caution. Explain how the correction affects later, similar
-actions without creating unsafe global behavior.
+If a user says, “You didn’t need to ask,” the agent should be able to become
+appropriately more autonomous. If the user says, “You should have asked,” it
+should become appropriately more cautious. Explain what changes, what persists
+across runs, and how learning affects relevant future situations without
+silently changing unrelated behavior.
 
 ### Evaluation
 
-Design labeled scenarios across both axes:
+Explain how you would test both useful proactivity and safe autonomy. Include
+scenarios covering:
 
-- Proactive opportunity: yes or no
-- Sensitive action: yes or no
+- A proactive opportunity exists or does not exist.
+- A proposed action is sensitive or not sensitive.
 
-At minimum, measure missed-proactive rate, wrongful-autonomous rate, and
-ask-fatigue rate.
+At minimum, define how you would measure:
 
-## What to Show
+- **Missed-proactive rate** — useful opportunities the agent misses.
+- **Wrongful-autonomous rate** — actions taken autonomously when it should have paused.
+- **Ask-fatigue rate** — unnecessary requests for user approval.
 
-Use your diagram to explain the major components, their responsibilities and
-interfaces, and one end-to-end scenario. Show how the design supports proactive
-work, makes a gating decision, learns from a later correction, and can be
-evaluated. Identify important failure modes and state what you would
-intentionally leave out of a first version.
+## What to Present
 
-There is no required formula, model, framework, database, or learning algorithm.
-We value clear interfaces, justified tradeoffs, failure awareness, and your own
-reasoning more than unnecessary complexity or polished AI-generated output.
+Use your diagram to show the important parts of your system and walk through one
+scenario from trigger to outcome. Explain major tradeoffs and failure modes,
+including what you would intentionally leave out of a first version.
+
+There is no required architecture, formula, model, framework, database, tool
+set, or learning algorithm. We care about clear reasoning, coherent interfaces,
+testable decisions, and how well you adapt the design when assumptions change.
