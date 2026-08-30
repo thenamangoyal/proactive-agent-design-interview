@@ -52,10 +52,13 @@ For example, mistakenly archiving a restorable newsletter has a smaller blast
 radius than sending private employee data to an external recipient.
 
 Design a way to assess sensitivity from the action and its context, then use it
-with other relevant information to choose one of the four outcomes above. Avoid
-treating every action of the same type as equally sensitive. Make the decision
-understandable and testable; the representation, formula, and policy structure
-are up to you.
+with other relevant information to make the gating decision:
+
+`Action + context → sensitivity and other relevant signals → decision → [Proceed | Proceed and notify | Ask | Escalate]`
+
+Avoid treating every action of the same type as equally sensitive. Make the
+decision understandable and testable; the representation, formula, and policy
+structure are up to you.
 
 ### Learning from Corrections
 
