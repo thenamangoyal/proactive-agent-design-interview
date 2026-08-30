@@ -75,12 +75,17 @@ scenarios covering:
 
 - A proactive opportunity exists or does not exist.
 - A proposed action is sensitive or not sensitive.
+- A correction is given in one run, followed by relevant and unrelated cases in later runs.
 
 At minimum, define how you would measure:
 
 - **Missed-proactive rate** — useful opportunities the agent misses.
 - **Wrongful-autonomous rate** — actions taken autonomously when it should have paused.
 - **Ask-fatigue rate** — unnecessary requests for user approval.
+
+The evaluation should compare decisions before and after a correction. It should
+catch both failure to apply feedback to a relevant later case and unsafe
+spillover into unrelated cases.
 
 ## What to Present
 
