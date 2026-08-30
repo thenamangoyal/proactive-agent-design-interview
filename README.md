@@ -48,6 +48,41 @@ failure mode, not a safe default.
 
 ## Core Requirements
 
+### Proactivity and Event Loop
+
+The agent must do more than respond to direct user messages. It should receive a
+stream of inbox, calendar, timer, or state-change events; identify useful next
+moves the user did not request; and continue tracking unfinished work across
+turns.
+
+Your design should explain:
+
+- What creates an event or future obligation
+- What context and state are loaded when it fires
+- How the agent proposes zero, one, or multiple candidate actions
+- How it avoids duplicate, stale, or no-longer-needed actions
+- How it records and verifies that a loop was actually closed
+
+```text
+Inbox / calendar / timer / unfinished obligation
+                         |
+                         v
+                    Event intake
+                         |
+                         v
+              Context and current-state check
+                         |
+                         v
+        Zero or more useful proposed next actions
+                         |
+                         v
+              Sensitivity model and gate
+```
+
+Proactivity describes **how an action is discovered**, not whether it is safe to
+execute autonomously. A proactive action may still Proceed, Proceed and notify,
+Ask, or Escalate depending on its sensitivity and context.
+
 ### Sensitivity Model
 
 The sensitivity model answers: **If this proposed action is wrong, how large is
