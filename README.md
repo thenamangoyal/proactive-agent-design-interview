@@ -2,11 +2,13 @@
 
 ## Interview Format
 
-This is a **60-minute live system-design interview**, not a coding exercise.
+This is a **50-minute live system-design discussion**, not a coding exercise.
 
 - Use Excalidraw or another whiteboard to draw your design.
 - Working code is not expected.
 - The interviewer may clarify requirements or introduce new scenarios.
+- Build and explain the design interactively rather than working silently and
+  presenting only at the end.
 - Your final artifact should be one understandable architecture diagram with
   enough annotations to support the discussion.
 
