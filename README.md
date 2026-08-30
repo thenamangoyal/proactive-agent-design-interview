@@ -50,14 +50,59 @@ failure mode, not a safe default.
 
 ### Sensitivity Model
 
-Classify actions by blast radius using features rather than only an action-type
-switch. At minimum, consider recipient, reversibility, money or commitment, and
-novelty.
+The sensitivity model answers: **If this proposed action is wrong, how large is
+the potential consequence?** We call that consequence its **blast radius**.
+
+Blast radius is not the model's confidence and is not the probability that harm
+will occur. It describes the size and reach of a possible mistake. For example:
+
+| Proposed action | Possible consequence if wrong | Example blast radius |
+|---|---|---|
+| Archive a restorable newsletter | Small and easy to undo | Low |
+| Move an internal team meeting | Affects several people but can be repaired | Medium |
+| Send private employee data externally | Serious privacy and organizational impact | High |
+
+Classify blast radius using features rather than only an action-type switch. At
+minimum, consider recipient, reversibility, money or commitment, and novelty.
+Your design should explain how these features combine and what the sensitivity
+model returns for the gate to consume.
 
 ### Gating Policy
 
-Use sensitivity and relevant context to choose Proceed, Proceed and notify, Ask,
-or Escalate. Make the decision process understandable and testable.
+The gating policy answers a different question: **Given the potential
+consequence and what we know about this situation, how much autonomy should the
+agent receive?**
+
+| Component | Main question | Example inputs | Output |
+|---|---|---|---|
+| Sensitivity model | How consequential would a mistake be? | Proposed action, recipients, reversibility, money, novelty | Sensitivity features and blast radius |
+| Gating policy | How much autonomy is appropriate now? | Blast radius, confidence, context, preferences, prior evidence, hard constraints | Proceed, Proceed and notify, Ask, or Escalate |
+
+The relationship should look roughly like this, although you should design the
+actual interfaces and decision mechanism:
+
+```text
+Proposed action + action context
+                |
+                v
+        Sensitivity model
+                |
+                v
+     Sensitivity / blast-radius report
+                |
+                |  + confidence + current context
+                |  + user preferences and learned policy
+                |  + hard constraints
+                v
+           Gating policy
+                |
+                v
+  Proceed | Proceed and notify | Ask | Escalate
+```
+
+Make the decision process understandable and testable. Explain why two actions
+with the same blast radius might receive different decisions because their
+confidence, context, provenance, or prior user authorization differs.
 
 ### Learning from Corrections
 
