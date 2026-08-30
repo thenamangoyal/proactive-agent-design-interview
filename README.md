@@ -55,33 +55,9 @@ stream of inbox, calendar, timer, or state-change events; identify useful next
 moves the user did not request; and continue tracking unfinished work across
 turns.
 
-Your design should explain:
-
-- What creates an event or future obligation
-- What context and state are loaded when it fires
-- How the agent proposes zero, one, or multiple candidate actions
-- How it avoids duplicate, stale, or no-longer-needed actions
-- How it records and verifies that a loop was actually closed
-
-```text
-Inbox / calendar / timer / unfinished obligation
-                         |
-                         v
-                    Event intake
-                         |
-                         v
-              Context and current-state check
-                         |
-                         v
-        Zero or more useful proposed next actions
-                         |
-                         v
-              Sensitivity model and gate
-```
-
-Proactivity describes **how an action is discovered**, not whether it is safe to
-execute autonomously. A proactive action may still Proceed, Proceed and notify,
-Ask, or Escalate depending on its sensitivity and context.
+Your design should make clear how proactivity is triggered, how work and context
+persist across turns, and how the system knows whether an unfinished loop has
+actually been completed. You should choose the components and interfaces.
 
 ### Sensitivity Model
 
@@ -111,33 +87,10 @@ agent receive?**
 | Component | Main question | Example inputs | Output |
 |---|---|---|---|
 | Sensitivity model | How consequential would a mistake be? | Proposed action, recipients, reversibility, money, novelty | Sensitivity features and blast radius |
-| Gating policy | How much autonomy is appropriate now? | Blast radius, confidence, context, preferences, prior evidence, hard constraints | Proceed, Proceed and notify, Ask, or Escalate |
-
-The relationship should look roughly like this, although you should design the
-actual interfaces and decision mechanism:
-
-```text
-Proposed action + action context
-                |
-                v
-        Sensitivity model
-                |
-                v
-     Sensitivity / blast-radius report
-                |
-                |  + confidence + current context
-                |  + user preferences and learned policy
-                |  + hard constraints
-                v
-           Gating policy
-                |
-                v
-  Proceed | Proceed and notify | Ask | Escalate
-```
+| Gating policy | How much autonomy is appropriate now? | Sensitivity and relevant context | Proceed, Proceed and notify, Ask, or Escalate |
 
 Make the decision process understandable and testable. Explain why two actions
-with the same blast radius might receive different decisions because their
-confidence, context, provenance, or prior user authorization differs.
+with the same blast radius might reasonably receive different decisions.
 
 ### Learning from Corrections
 
@@ -158,19 +111,11 @@ ask-fatigue rate.
 
 ## What to Show
 
-Your diagram and explanation should make the end-to-end system understandable:
-
-1. What triggers the agent without a user turn
-2. The major components and the input/output of each
-3. How an event becomes zero or more proposed actions
-4. How sensitivity and the gate produce a decision
-5. What happens after each of the four decisions
-6. How a user correction changes a later decision
-7. What state must persist across runs
-8. How you would evaluate whether the design is both useful and safe
-
-Walk through at least one concrete scenario, identify important failure modes,
-and state what you would intentionally leave out of a first version.
+Use your diagram to explain the major components, their responsibilities and
+interfaces, and one end-to-end scenario. Show how the design supports proactive
+work, makes a gating decision, learns from a later correction, and can be
+evaluated. Identify important failure modes and state what you would
+intentionally leave out of a first version.
 
 There is no required formula, model, framework, database, or learning algorithm.
 We value clear interfaces, justified tradeoffs, failure awareness, and your own
